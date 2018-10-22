@@ -16,7 +16,11 @@ async def vcx_init_test_mode():
 
 
 @pytest.fixture
+<<<<<<< HEAD
 async def shutdown():
+=======
+async def cleanup():
+>>>>>>> Adds Shutdown Fixture to Tests That Modify Info
 
     def _shutdown(erase):
         global flag
