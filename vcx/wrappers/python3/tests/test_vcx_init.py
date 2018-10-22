@@ -15,7 +15,6 @@ async def test_vcx_init():
 async def test_error_message():
     assert error_message(ErrorCode.NotReady) == 'Object not ready for specified action'
 
-<<<<<<< HEAD
 
 @pytest.mark.asyncio
 @pytest.mark.usefixtures('vcx_init_test_mode')
@@ -27,5 +26,3 @@ async def test_shutdown_works(cleanup):
         cleanup(True)
         await connection.serialize()
     assert ErrorCode.InvalidConnectionHandle == e.value.error_code
-=======
->>>>>>> Adds Shutdown Fixture to Tests That Modify Info
