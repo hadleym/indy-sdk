@@ -85,11 +85,7 @@ async def test_wallet_search():
 
 
 @pytest.mark.asyncio
-<<<<<<< HEAD
-async def test_import_wallet_failures(vcx_init_test_mode, shutdown):
-=======
 async def test_import_wallet_failures(vcx_init_test_mode, cleanup):
->>>>>>> Adds Shutdown Fixture to Tests That Modify Info
     with pytest.raises(VcxError) as e:
         await Wallet.import_wallet('Invalid Json')
     assert ErrorCode.InvalidJson == e.value.error_code
