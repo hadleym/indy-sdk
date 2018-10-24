@@ -123,22 +123,22 @@ After the wallet is opened we can create a DID record in this wallet by calling 
 
 **Faber, Acme, Thrift and Government should now establish a Connection with the Steward.**
 
-Each connection is actually a pair of Pairwise-Unique Identifiers (DIDs). The one DID is owned by one party to the connection and the second by another.
+Each connection is actually a pair of Pairwise-Unique Identifiers (DIDs). One DID is owned by one party of the connection and the second by another.
 
-Both parties know both DIDs and understand what connection this pair describes.
+Both parties know both DIDs and understand which connection this pair describes.
 
 The relationship between them is not shareable with others; it is unique to those two parties in that each pairwise relationship uses different DIDs.
 
-We call the process of establish a connection **Onboarding**.
+We call the process of establishing a connection **Onboarding**.
 
-In this tutorial we will describe the simple version of onboarding process.
+In this tutorial we will describe the simple version of the onboarding process.
 In our case, one party will always be the Trust Anchor. Real enterprise scenarios can use a more complex version.
 
-##### Connecting the Establishment
-Let's look the process of connection establishment between **Steward** and **Faber College**.
+##### Establishing the Connection
+Let's look the process of establishing a connection between **Steward** and **Faber College**.
 
-1. **Faber** and **Steward** contact in some way to initiate onboarding process.
-   It can be filling the form on web site or a phone call.
+1. **Faber** and **Steward** contact in some way to initiate the onboarding process.
+   This could be filling out a form on a web site, a phone call, etc.
 
 2. **Steward** creates a new DID record in the wallet by calling ``did.create_and_store_my_did`` that he will use for secure interactions only with **Faber**.
     ```python
@@ -146,7 +146,7 @@ Let's look the process of connection establishment between **Steward** and **Fab
     (steward_faber_did, steward_faber_key) = await did.create_and_store_my_did(steward_wallet, "{}")
     ```
 
-3. **Steward** sends the corresponding `NYM` transaction to the Ledger by consistently calling ``ledger.build_nym_request`` to build the NYM request and ``ledger.sign_and_submit_request`` to send the created request.
+3. **Steward** sends the corresponding `NYM` transaction to the Ledger by calling ``ledger.build_nym_request`` to build the NYM request and then ``ledger.sign_and_submit_request`` to sign and submit the NYM request.
     ```python
     # Steward Agent
     nym_request = await ledger.build_nym_request(steward_did, steward_faber_did, steward_faber_key, None, role)
@@ -154,7 +154,7 @@ Let's look the process of connection establishment between **Steward** and **Fab
     ```
 
 4. **Steward** creates the connection request which contains the created `DID` and `Nonce`.
-   This nonce is just a big random number generated to track the unique connection request. A nonce is a random arbitrary number that can only be used one time. When a connection request is accepted, the invitee digitally signs the nonce so that the inviter can match the response with a prior request.
+   This nonce is just a big random number generated to track the unique connection request. This nonce can only be used once. When a connection request is accepted, the invitee digitally signs the nonce so that the inviter can match the response with a prior request.
     ```python
     # Steward Agent
     connection_request = {
@@ -197,7 +197,7 @@ Let's look the process of connection establishment between **Steward** and **Fab
     ```
 
 11. **Faber** anonymously encrypts the connection response by calling ``crypto.anon_crypt`` with the **Steward** verkey.
-   The Anonymous-encryption schema is designed for the sending of messages to a Recipient which has been given its public key. Only the Recipient can decrypt these messages, using its private key. While the Recipient can verify the integrity of the message, it cannot verify the identity of the Sender.
+   The Anonymous-encryption schema is designed for sending messages to a Recipient where the Recipient's keys is is known (in this case, **Faber** knows the key being used by **Steward** in this connection from the `connection_request`).  Only the Recipient can decrypt these messages, using its private key. While the Recipient can verify the integrity of the message, it cannot verify the identity of the Sender.
     ```python
     # Faber Agent
     anoncrypted_connection_response = await crypto.anon_crypt(steward_faber_verkey, connection_response.encode('utf-8'))
@@ -219,7 +219,7 @@ Let's look the process of connection establishment between **Steward** and **Fab
     ```
 
 15. **Steward** sends the `NYM` transaction for **Faber's** DID to the Ledger.
-Please note that despite the fact that the Steward is the sender of this transaction the owner of the DID will be Faber as it uses the verkey as provided by Faber.
+Please note that despite the fact that the Steward is the sender of this transaction the owner of the DID will still be Faber as it uses the verkey as provided by Faber.
     ```python        
     # Steward Agent
     nym_request = await ledger.build_nym_request(steward_did, decrypted_connection_response['did'], decrypted_connection_response['verkey'], None, role)
@@ -275,7 +275,7 @@ After the connection is established **Faber** must create new DID record that he
 6. **Steward** asks the ledger for the Verification key of **Faber's** DID by calling ``did.key_for_did``.
     ```python        
     # Steward Agent    
-    faber_verkey = await did.key_for_did(pool_handle, from_wallet, faber_did_info['did'])
+    faber_verkey = await did.key_for_did(pool_handle, from_wallet, steward_faber_did)
     ```
 
 7. **Steward** authenticates **Faber** by comparison of the Message Sender Verkey and the **Faber** Verkey received from the Ledger.
