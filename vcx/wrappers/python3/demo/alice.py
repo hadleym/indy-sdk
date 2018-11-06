@@ -9,6 +9,7 @@ from vcx.api.credential import Credential
 from vcx.api.disclosed_proof import DisclosedProof
 from vcx.api.utils import vcx_agent_provision
 from vcx.state import State
+import vcx.api.logging as logging
 
 
 provisionConfig = {
@@ -26,6 +27,7 @@ async def main():
 
     payment_plugin = cdll.LoadLibrary("libnullpay.so")
     payment_plugin.nullpay_init()
+    logging.default_logger()
 
     print("#7 Provision an agent and wallet, get back configuration details")
     config = await vcx_agent_provision(json.dumps(provisionConfig))
