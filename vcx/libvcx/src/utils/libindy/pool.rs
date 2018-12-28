@@ -26,6 +26,7 @@ pub fn set_protocol_version() -> u32 {
 }
 
 pub fn create_pool_ledger_config(pool_name: &str, path: &str) -> Result<(), u32> {
+    info!("Creating Pool Ledger Config - name: {}, path: {}", pool_name, path);
     let pool_config = format!(r#"{{"genesis_txn":"{}"}}"#, path);
 
     match pool::create_pool_ledger_config(pool_name, Some(&pool_config)).wait() {
@@ -102,11 +103,12 @@ pub mod tests {
     }
 
     pub fn create_genesis_txn_file() {
-        let test_pool_ip = ::std::env::var("TEST_POOL_IP").unwrap_or("127.0.0.1".to_string());
+        let test_pool_ip = ::std::env::var("TEST_POOL_IP").unwrap_or("54.71.181.31".to_string());
 
         let node_txns = get_txns(&test_pool_ip);
         let txn_file_data = node_txns[0..4].join("\n");
 
+        info!("{}", txn_file_data);
         let mut f = fs::File::create(GENESIS_PATH).unwrap();
         f.write_all(txn_file_data.as_bytes()).unwrap();
         f.flush().unwrap();

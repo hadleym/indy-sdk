@@ -246,6 +246,13 @@ mod tests {
     #[cfg(feature = "pool_tests")]
     #[test]
     fn test_real_proof() {
+        use std::ffi::CString;
+        use api::logger::vcx_set_default_logger;
+        let level = CString::new("info").expect("Couldn't create CString Level for logging");
+        let err = vcx_set_default_logger(level.as_ptr());
+        info!("logger initialized");
+        assert_eq!(err, 0);
+
         let number_of_attributes = 10;
         init!("agency");
         let institution_did = settings::get_config_value(settings::CONFIG_INSTITUTION_DID).unwrap();
