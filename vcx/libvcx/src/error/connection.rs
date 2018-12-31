@@ -17,8 +17,8 @@ pub enum ConnectionError {
     InvalidHandle(),
     InvalidWalletSetup(),
     InvalidMessagePack(),
-    InvalidJson(),
     CannotDeleteConnection(),
+    InvalidJson(),
     CommonError(u32),
 }
 
@@ -26,19 +26,20 @@ pub enum ConnectionError {
 impl fmt::Display for ConnectionError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            ConnectionError::InvalidHandle() => write!(f, "{}", INVALID_CONNECTION_HANDLE.message),
-            ConnectionError::GeneralConnectionError() => write!(f, "{}", CONNECTION_ERROR.message),
-            ConnectionError::InviteDetailError() => write!(f, "{}", INVALID_INVITE_DETAILS.message),
             ConnectionError::CreateError(key) => write!(f, "{},{}", CREATE_CONNECTION_ERROR.message, key),
+            ConnectionError::GeneralConnectionError() => write!(f, "{}", CONNECTION_ERROR.message),
             ConnectionError::ConnectionNotReady() => write!(f, "{}", NOT_READY.message),
-            ConnectionError::InvalidMessagePack() => write!(f, "{}", INVALID_MSGPACK.message),
+            ConnectionError::InviteDetailError() => write!(f, "{}", INVALID_INVITE_DETAILS.message),
+            ConnectionError::InvalidHandle() => write!(f, "{}", INVALID_CONNECTION_HANDLE.message),
             ConnectionError::InvalidWalletSetup() => write!(f, "{}", INVALID_WALLET_SETUP.message),
+            ConnectionError::InvalidMessagePack() => write!(f, "{}", INVALID_MSGPACK.message),
             ConnectionError::CannotDeleteConnection() => write!(f, "{}", CANNOT_DELETE_CONNECTION.message),
             ConnectionError::InvalidJson() => write!(f, "{}", INVALID_JSON.message),
             ConnectionError::CommonError(x) => connection_message(f, x),
         }
     }
 }
+
 fn connection_message(f: &mut fmt::Formatter, error_code: u32) -> fmt::Result {
     if error_code == UNKNOWN_LIBINDY_ERROR.code_num {
         // TODO: Make ths better, right now its just example code.
@@ -48,16 +49,17 @@ fn connection_message(f: &mut fmt::Formatter, error_code: u32) -> fmt::Result {
         write!(f, "Common Error had a value: {}.", error_code)
     }
 }
+
 impl Error for ConnectionError {
     fn cause(&self) -> Option<&Error> {
         match *self {
-            ConnectionError::InvalidHandle() => None,
             ConnectionError::CreateError(ref key) => None,
             ConnectionError::GeneralConnectionError() => None,
             ConnectionError::ConnectionNotReady() => None,
             ConnectionError::InviteDetailError() => None,
-            ConnectionError::InvalidMessagePack() => None,
+            ConnectionError::InvalidHandle() => None,
             ConnectionError::InvalidWalletSetup() => None,
+            ConnectionError::InvalidMessagePack() => None,
             ConnectionError::InvalidJson() => None,
             ConnectionError::CannotDeleteConnection() => None,
             ConnectionError::CommonError(x) => None,
