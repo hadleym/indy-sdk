@@ -3,17 +3,24 @@ use self::openssl::sha::sha256;
 use self::openssl::bn::BigNum;
 use utils::error::BIG_NUMBER_ERROR;
 pub fn encode(s: &str ) -> Result<String, u32> {
+    trace!("encoding {}", s);
     match s.parse::<u32>() {
         Ok(_) => Ok(s.to_string()),
-        Err(_) => {
+        Err(e) => {
+            trace!("error parsing: {:?}", e);
             let hash = sha256(s.as_bytes());
+            trace!("hash of {}: {:?}", &s, &hash);
             let bignum = match BigNum::from_slice(&hash) {
-                Ok(b) => b,
+                Ok(b) => {
+                    trace!("bignum created: {}", b);
+                    b
+                },
                 Err(_) => {
                     warn!("{}", BIG_NUMBER_ERROR.message);
                     return Err(BIG_NUMBER_ERROR.code_num)
                 }
             };
+            trace!("bignum: {}", bignum);
             match bignum.to_dec_str() {
                 Ok(s) => Ok(s.to_string()),
                 Err(_) => {
@@ -27,7 +34,7 @@ pub fn encode(s: &str ) -> Result<String, u32> {
 
 
 #[cfg(test)]
-mod test{
+mod tests {
     use super::*;
     use std::str;
     #[test]
@@ -55,6 +62,15 @@ mod test{
         let number_as_string = "123";
         assert_eq!(number_as_string, encode(number_as_string).unwrap());
     }
+
+    #[test]
+    fn test_bignum() {
+        let s = "thisisastring".to_string();
+        let hash = sha256(s.as_bytes());
+        let bignum = BigNum::from_slice(&hash).unwrap();
+        println!("hash: {:?}", &hash);
+    }
+
 
 
 

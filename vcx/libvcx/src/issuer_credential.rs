@@ -199,12 +199,20 @@ impl IssuerCredential {
             return Err(IssuerCredError::InvalidHandle());
         }
 
+        trace!("Verifying Payment");
         self.verify_payment().map_err(|e| IssuerCredError::CommonError(e))?;
+        trace!("Payment Verified");
 
         let to = connection::get_pw_did(connection_handle).map_err(|e| IssuerCredError::CommonError(e.to_error_code()))?;
+        trace!("to: {}", &to);
         let attrs_with_encodings = self.create_attributes_encodings()?;
-        let data = if settings::test_indy_mode_enabled() { CRED_MSG.to_string()} else {
+        trace!("atters_with_encodings: {:?}", attrs_with_encodings);
+        let data = if settings::test_indy_mode_enabled() { trace!("test_indy_mode_enabled"); CRED_MSG.to_string()} else {
+            trace!("attrs with encodings: {}", &attrs_with_encodings);
+            trace!("to: {}", &to);
+            trace!("generating credentials");
             let cred = self.generate_credential(&attrs_with_encodings, &to)?;
+            trace!("credentials generated: {:?}", &cred);
             serde_json::to_string(&cred).or(Err(IssuerCredError::InvalidCred()))?
         };
 
@@ -238,6 +246,7 @@ impl IssuerCredential {
     }
 
     pub fn create_attributes_encodings(&self) -> Result<String, IssuerCredError> {
+        trace!("create_attrs_encodings");
         encode_attributes(&self.credential_attributes)
     }
 
@@ -432,14 +441,15 @@ impl IssuerCredential {
     }
 */
 pub fn encode_attributes(attributes: &str) -> Result<String, IssuerCredError> {
-let mut attributes: serde_json::Value = match serde_json::from_str(attributes) {
+    trace!("endcode_attributes(attributes: {})", attributes);
+    let mut attributes: serde_json::Value = match serde_json::from_str(attributes) {
         Ok(x) => x,
         Err(e) => {
             warn!("Invalid Json for Attribute data");
             return Err(IssuerCredError::CommonError(INVALID_JSON.code_num))
         }
     };
-
+    trace!("mut attributes: {})", &attributes);
     let map = match attributes.as_object_mut() {
         Some(x) => x,
         None => {
@@ -449,8 +459,10 @@ let mut attributes: serde_json::Value = match serde_json::from_str(attributes) {
     };
 
     let mut dictionary = HashMap::new();
+    trace!("dictionary created");
 
     for (attr, attr_data) in map.iter_mut(){
+        trace!("(attr, attr_data): ({}, {})", attr, attr_data);
         let first_attr : &str = match attr_data {
             // old style input such as {"address2":["101 Wilson Lane"]}
             serde_json::Value::Array(array_type) => {
@@ -468,7 +480,10 @@ let mut attributes: serde_json::Value = match serde_json::from_str(attributes) {
             },
 
             // new style input such as {"address2":"101 Wilson Lane"}
-            serde_json::Value::String(str_type) => str_type,
+            serde_json::Value::String(str_type) => {
+                trace!("str_type: {}", str_type);
+                str_type
+            },
 
             // anything else is an error
             _ => {
@@ -477,13 +492,18 @@ let mut attributes: serde_json::Value = match serde_json::from_str(attributes) {
             }
         };
 
+        trace!("encoding attributes: {}", &first_attr);
+
         let encoded = encode(&first_attr).map_err(|x| IssuerCredError::CommonError(x))?;
+        trace!("attributes encoded");
         let attrib_values = json!({
             "raw" : first_attr,
             "encoded": encoded
         });
+        trace!("attr_values: {}", &attrib_values.to_string());
 
         dictionary.insert(attr, attrib_values);
+        trace!("encode_attributes finished");
     }
 
     match serde_json::to_string_pretty(&dictionary) {
@@ -1183,6 +1203,9 @@ pub mod tests {
 
     #[test]
     fn test_encode_with_several_attributes_success() {
+        use utils::logger::LibvcxDefaultLogger;
+        LibvcxDefaultLogger::init(Some("trace".to_string()));
+
 
         /*
         for reference....expectation is encode_attributes returns this:
@@ -1211,29 +1234,32 @@ pub mod tests {
         });
         */
 
-        static TEST_CREDENTIAL_DATA: &str =
-            r#"{"address2":["101 Wilson Lane"],
-            "zip":["87121"],
-            "state":["UT"],
-            "city":["SLC"],
-            "address1":["101 Tela Lane"]
-            }"#;
+        let test_string = "thisisastringvalue";
+        let test_integer = "87121";
+        let test_string_spaces = "101 Tela Lane";
+        let TEST_CREDENTIAL_DATA = &json!({
+            "address2": test_string,
+            "zip": test_integer,
+            "state":"UT",
+            "city":"SLC",
+            "address1": test_string_spaces,
+        }).to_string();
 
         let results_json = encode_attributes(TEST_CREDENTIAL_DATA).unwrap();
 
         let results : Value = serde_json::from_str(&results_json).unwrap();
 
         let address2 : &Value = &results["address2"];
-        assert_eq!(encode("101 Wilson Lane").unwrap(), address2["encoded"]);
-        assert_eq!("101 Wilson Lane", address2["raw"]);
+        assert_eq!(encode(test_string).unwrap(), address2["encoded"]);
+        assert_eq!(test_string, address2["raw"]);
 
         let state : &Value = &results["state"];
         assert_eq!(encode("UT").unwrap(), state["encoded"]);
         assert_eq!("UT", state["raw"]);
 
         let zip : &Value = &results["zip"];
-        assert_eq!("87121", zip["encoded"]);
-        assert_eq!("87121", zip["raw"]);
+        assert_eq!(test_integer, zip["encoded"]);
+        assert_eq!(test_integer, zip["raw"]);
 
 
     }

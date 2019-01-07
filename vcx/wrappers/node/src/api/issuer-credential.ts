@@ -200,7 +200,9 @@ export class IssuerCredential extends VCXBaseWithState<IIssuerCredentialData> {
     try {
       await createFFICallbackPromise<void>(
         (resolve, reject, cb) => {
+          
           const rc = rustAPI().vcx_issuer_send_credential(0, this.handle, connection.handle, cb)
+          console.log("regurned from vcx_issuer_send_Credential")
           if (rc) {
             reject(rc)
           }

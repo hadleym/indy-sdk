@@ -204,9 +204,9 @@ export const dataIssuerCredentialCreate = async (): Promise<IIssuerCredentialCre
   const credDef = await credentialDefCreate()
   return {
     attr: {
-      key1: 'value1',
-      key2: 'value2',
-      key3: 'value3'
+      key1: '1234',
+      key2: 'thisisastring',
+      key3: '1234'
     },
     credDefHandle: Number(credDef.handle),
     credentialName: 'Credential Name',

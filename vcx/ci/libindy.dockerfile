@@ -54,7 +54,7 @@ RUN unzip -d /opt/gradle gradle-3.4.1-bin.zip
 RUN gem install fpm
 RUN apt-get install rpm -y
 
-COPY ./vcx/ci/scripts/installCert.sh /tmp
+COPY ./ci/scripts/installCert.sh /tmp
 RUN /tmp/installCert.sh
 
 # Add sovrin to sources.list

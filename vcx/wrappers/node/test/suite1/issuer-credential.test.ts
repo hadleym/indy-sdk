@@ -18,10 +18,11 @@ import {
   StateType,
   VCXCode,
   VCXMock,
-  VCXMockMessage
+  VCXMockMessage,
+  defaultLogger,
 } from 'src'
 
-describe('IssuerCredential:', () => {
+describe.only('IssuerCredential:', () => {
   before(() => initVcxTestMode())
 
   describe('create:', () => {
@@ -183,8 +184,9 @@ describe('IssuerCredential:', () => {
     })
   })
 
-  describe('sendCredential:', () => {
-    it('success', async () => {
+  describe.only('sendCredential:', () => {
+    it.only('success', async () => {
+      defaultLogger('trace')
       const connection = await connectionCreateConnect()
       const issuerCredential = await issuerCredentialCreate()
       await issuerCredential.sendOffer(connection)
@@ -192,7 +194,10 @@ describe('IssuerCredential:', () => {
       VCXMock.setVcxMock(VCXMockMessage.UpdateIssuerCredential)
       await issuerCredential.updateState()
       assert.equal(await issuerCredential.getState(), StateType.RequestReceived)
+      console.log("######")
+      console.log('word!!!!', await issuerCredential.serialize())
       await issuerCredential.sendCredential(connection)
+      console.log("------ Finished ----- ")
       assert.equal(await issuerCredential.getState(), StateType.Accepted)
     })
 
