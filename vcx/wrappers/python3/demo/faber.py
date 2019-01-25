@@ -24,13 +24,13 @@ from vcx.state import State, ProofState
 # 'wallet_key': encryption key for encoding wallet
 # 'payment_method': method that will be used for payments
 provisionConfig = {
-  'agency_url':'http://localhost:8080',
-  'agency_did':'VsKV7grR1BUE29mG2Fm2kX',
-  'agency_verkey':'Hezce2UWMZ3wUhVkh2LfKSs8nDzWwzs2Win7EzNN3YaR',
-  'wallet_name':'faber_wallet',
-  'wallet_key':'123',
-  'payment_method': 'null',
-  'enterprise_seed':'000000000000000000000000Trustee1'
+    "agency_url": "https://eas-team1.pdev.evernym.com",
+	"agency_did":"CV65RFpeCtPu82hNF9i61G",
+	"agency_verkey":"7G3LhXFKXKTMv7XGx1Qc9wqkMbwcU2iLBHL8x1JXWWC2",
+    'wallet_name':'faber_wallet',
+    'wallet_key':'123',
+    'payment_method': 'null',
+    'enterprise_seed':'000000000000000000000000Trustee1'
 }
 
 
@@ -45,7 +45,7 @@ async def main():
     # Set some additional configuration options specific to faber
     config['institution_name'] = 'Faber'
     config['institution_logo_url'] = 'http://robohash.org/234'
-    config['genesis_path'] = 'docker.txn'
+    config['genesis_path'] = 'genesis.txn'
     
     print("#2 Initialize libvcx with new configuration")
     await vcx_init_with_config(json.dumps(config))
@@ -76,10 +76,13 @@ async def main():
         await connection_to_alice.update_state()
         connection_state = await connection_to_alice.get_state()
 
+    # for testing attr size, change the file to open to the appropriate file
+    with open('input_140k') as f:
+        degree_attr = f.read()
     schema_attrs = {
         'name': 'alice',
         'date': '05-2018',
-        'degree': 'maths',
+        'degree': degree_attr
     }
 
     print("#12 Create an IssuerCredential object using the schema and credential definition")

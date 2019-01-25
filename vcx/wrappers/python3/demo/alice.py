@@ -15,9 +15,9 @@ from vcx.state import State
 # logging.basicConfig(level=logging.DEBUG) uncomment to get logs
 
 provisionConfig = {
-    'agency_url': 'http://localhost:8080',
-    'agency_did': 'VsKV7grR1BUE29mG2Fm2kX',
-    'agency_verkey': 'Hezce2UWMZ3wUhVkh2LfKSs8nDzWwzs2Win7EzNN3YaR',
+    "agency_url": "https://agency-team1.pdev.evernym.com",
+    "agency_did": "TGLBMTcW9fHdkSqown9jD8",
+    "agency_verkey": "FKGV9jKvorzKPtPJPNLZkYPkLhiS1VbxdvBgd1RjcQHR",
     'wallet_name': 'alice_wallet',
     'wallet_key': '123',
     'payment_method': 'null',
@@ -36,7 +36,7 @@ async def main():
     # Set some additional configuration options specific to alice
     config['institution_name'] = 'alice'
     config['institution_logo_url'] = 'http://robohash.org/456'
-    config['genesis_path'] = 'docker.txn'
+    config['genesis_path'] = 'genesis.txn'
 
     print("#8 Initialize libvcx with new configuration")
     await vcx_init_with_config(json.dumps(config))
@@ -53,6 +53,8 @@ async def main():
     print("#11 Wait for faber.py to issue a credential offer")
     sleep(10)
     offers = await Credential.get_offers(connection_to_faber)
+    while len(offers) < 1:
+        offers = await Credential.get_offers(connection_to_faber)
 
     # Create a credential object from the credential offer
     credential = await Credential.create('credential', offers[0])

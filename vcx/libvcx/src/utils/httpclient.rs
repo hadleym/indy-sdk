@@ -10,6 +10,7 @@ lazy_static!{
 
 //Todo: change this RC to a u32
 pub fn post_u8(body_content: &Vec<u8>) -> Result<Vec<u8>,String> {
+    println!("POST_U8");
     let url = format!("{}/agency/msg", settings::get_config_value(settings::CONFIG_AGENCY_ENDPOINT).or(Err("Invalid Configuration".to_string()))?);
 
     if settings::test_agency_mode_enabled() {return Ok(NEXT_U8_RESPONSE.lock().unwrap().pop().unwrap_or(Vec::new()));}
@@ -19,23 +20,31 @@ pub fn post_u8(body_content: &Vec<u8>) -> Result<Vec<u8>,String> {
         set_ssl_cert_location();
     }
     let client = reqwest::ClientBuilder::new().build().or(Err("Preparing Post failed".to_string()))?;
-    debug!("Posting encrypted bundle to: \"{}\"", url);
-    let mut response = match  client.post(&url).body(body_content.to_owned()).header(CONTENT_TYPE, "octet_stream").send() {
+    println!("Posting encrypted bundle to: \"{}\"", url);
+    let mut message = client.post(&url).body(body_content.to_owned()).header(CONTENT_TYPE, "octet_stream");
+
+    println!("CLIENT BODY STUFF");
+    println!("CLIENT BODY STUFF");
+    println!("CLIENT BODY STUFF");
+    println!("{:?}", message);
+
+    let mut response = match message.send() {
         Ok(result) => {
-            trace!("got the result");
+            println!("got the result");
             result
         },
         Err(err) => {
-            error!("error: {}", err);
+            println!("error: {}", err);
             return Err("could not connect".to_string())
         },
     };
 
-    trace!("Response Header: {:?}", response);
+    println!("RESPONSE HEADER: {:?}", response);
     if !response.status().is_success() {
         let mut content = String::new();
+        println!("RESPONSE IS NOT SUCCESS");
         match response.read_to_string(&mut content) {
-            Ok(x) => info!("Request failed: {}", content),
+            Ok(x) => println!("CONTENT {}", content),
             Err(x) => info!("could not read response"),
         };
         return Err("POST failed".to_string());

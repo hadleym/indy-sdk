@@ -163,6 +163,7 @@ impl IssuerCredential {
         let data = connection::generate_encrypted_payload(&self.issued_vk, &self.remote_vk, &payload, "CRED_OFFER")
             .map_err(|e| IssuerCredError::CommonError(e.to_error_code()))?;
 
+        println!("SENDING MESSAGE to AGENCY");
         match messages::send_message().to(&self.issued_did)
             .to_vk(&self.issued_vk)
             .msg_type("credOffer")
@@ -324,8 +325,12 @@ impl IssuerCredential {
     fn generate_credential_offer(&self, to_did: &str) -> Result<CredentialOffer, IssuerCredError> {
         let attr_map = convert_to_map(&self.credential_attributes)?;
         //Todo: make a cred_def_offer error
+        println!("CREATING LIBINDY OFFER");
         let libindy_offer = anoncreds:: libindy_issuer_create_credential_offer(&self.cred_def_id)
-            .map_err(|err| IssuerCredError::CommonError(err))?;
+            .map_err(|err| {
+                println!("ERROR libindy_create_credential_offer");
+                IssuerCredError::CommonError(err)
+            })?;
         Ok(CredentialOffer {
             msg_type: String::from("CRED_OFFER"),
             version: String::from("0.1"),

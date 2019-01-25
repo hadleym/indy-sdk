@@ -95,18 +95,25 @@ impl CreateKeyMsg{
     pub fn send_secure(&mut self) -> Result<Vec<String>, u32> {
         trace!("CreateKeyMsg::send >>>");
 
+        println!("MSG PACK MSG");
         let data = match self.msgpack() {
             Ok(x) => x,
             Err(x) => return Err(x),
         };
-
+        
         if settings::test_agency_mode_enabled() {
             return Ok(vec!["U5LXs4U7P9msh647kToezy".to_string(), "FktSZg8idAVzyQZrdUppK6FTrfAzW3wWVzAjJAfdUvJq".to_string()]);
         }
 
         let mut result = Vec::new();
+        println!("POST_U8");
+        println!("THIS IS PROBABLY WHERE THE PROBLEM IS ");
         match httpclient::post_u8(&data) {
-            Err(_) => return Err(error::POST_MSG_FAILURE.code_num),
+            Err(ec) => {
+                println!("ERROR RECIEVED FROM post_u8");
+                println!("ec: {}", ec);
+                return Err(error::POST_MSG_FAILURE.code_num)
+            },
             Ok(response) => {
                 let (did, vk) = parse_create_keys_response(response)?;
                 result.push(did);

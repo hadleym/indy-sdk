@@ -75,6 +75,7 @@ impl SendMessage{
 
     pub fn msg_type(&mut self, msg: &str) -> &mut Self{
         //Todo: validate msg??
+        println!("MSGTYPE");
         self.message = msg.to_string();
         self
     }
@@ -86,6 +87,7 @@ impl SendMessage{
     }
 
     pub fn status_code(&mut self, code: &str) -> &mut Self {
+        println!("STATUSCODE");
         //Todo: validate that it can be parsed to number??
         self.status_code = code.to_string();
         self
@@ -93,6 +95,7 @@ impl SendMessage{
 
 
     pub fn edge_agent_payload(&mut self, payload: &Vec<u8>) -> &mut Self {
+        println!("EDGE AGENT PAYLOAD");
         //todo: is this a json value, String??
         self.payload = payload.clone();
         self
@@ -105,12 +108,14 @@ impl SendMessage{
 
     pub fn send_secure(&mut self) -> Result<Vec<String>, u32> {
         trace!("SendMessage::send >>>");
+        println!("SENDMESSAGE");
 
         let data = match self.msgpack() {
             Ok(x) => x,
             Err(x) => return Err(x),
         };
 
+        println!("MESSAGE PACKED, SENDING TO AGENCY");
         let mut result = Vec::new();
         debug!("sending secure message to agency");
         if settings::test_agency_mode_enabled() {
@@ -127,11 +132,13 @@ impl SendMessage{
     }
 
     pub fn set_title(&mut self, title: &str) -> &mut Self {
+        println!("SETTITLE");
         self.title = Some(title.to_string());
         self
     }
 
     pub fn set_detail(&mut self, detail: &str) -> &mut Self {
+        println!("SETDETAIL");
         self.detail = Some(detail.to_string());
         self
     }

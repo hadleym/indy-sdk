@@ -284,6 +284,7 @@ pub trait GeneralMessage{
     }
 
     fn agent_did(&mut self, did: &str) -> & mut Self {
+        println!("AGENTDID");
          match validation::validate_did(did){
             Ok(x) => {
                 self.set_agent_did(x);
@@ -298,6 +299,7 @@ pub trait GeneralMessage{
     }
 
     fn agent_vk(&mut self, to_vk: &str) -> &mut Self {
+        println!("AGENTVK");
          match validation::validate_verkey(to_vk){
             Ok(x) => {
                 self.set_agent_vk(x);
