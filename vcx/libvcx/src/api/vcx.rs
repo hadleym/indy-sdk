@@ -105,11 +105,14 @@ pub extern fn vcx_init (command_handle: u32,
 }
 
 fn _finish_init(command_handle: u32, cb: extern fn(xcommand_handle: u32, err: u32)) -> u32 {
+    use api::logger::vcx_set_default_logger;
+    //let level = CStringUtils::string_to_cstring("debug".to_string());
+    //vcx_set_default_logger(level.as_ptr());
 
     ::utils::threadpool::init();
 
     settings::log_settings();
-
+    
     if wallet::get_wallet_handle() > 0 {
         error!("Library was already initialized");
         return error::ALREADY_INITIALIZED.code_num;

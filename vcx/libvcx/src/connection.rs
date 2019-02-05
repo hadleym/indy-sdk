@@ -60,7 +60,7 @@ struct Connection {
 
 impl Connection {
     fn _connect_send_invite(&mut self, options: &ConnectionOptions) -> Result<u32, ConnectionError> {
-        debug!("sending invite for connection {}", self.source_id);
+        println!("sending invite for connection {}", self.source_id);
 
         match messages::send_invite()
             .to(&self.pw_did)
@@ -80,7 +80,7 @@ impl Connection {
                 self.invite_detail = match parse_invite_detail(&response[0]) {
                     Ok(x) => Some(x),
                     Err(x) => {
-                        error!("error when sending invite for connection {}: {}", self.source_id, x);
+                        println!("error when sending invite for connection {}: {}", self.source_id, x);
                         // TODO: Refactor Error
                         // TODO: Implement Correct Error
                         return Err(ConnectionError::GeneralConnectionError());
@@ -111,7 +111,8 @@ impl Connection {
     }
 
     fn _connect_accept_invite(&mut self) -> Result<u32,ConnectionError> {
-        debug!("accepting invite for connection {}", self.source_id);
+        println!("accepting invite for connection {}", self.source_id);
+        println!("{:?}", self);
 
         if let Some(ref details) = self.invite_detail {
             match messages::accept_invite()
@@ -143,7 +144,7 @@ impl Connection {
     }
 
     fn connect(&mut self, options: &ConnectionOptions) -> Result<u32,ConnectionError> {
-        trace!("Connection::connect >>> options: {:?}", options);
+        println!("Connection::connect >>> options: {:?}", options);
         match self.state {
             VcxStateType::VcxStateInitialized
                 | VcxStateType::VcxStateOfferSent => self._connect_send_invite(options),
