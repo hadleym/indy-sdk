@@ -19,6 +19,7 @@ pub fn post_u8(body_content: &Vec<u8>) -> Result<Vec<u8>,String> {
         info!("::Android code");
         set_ssl_cert_location();
     }
+<<<<<<< Updated upstream
     println!("Posting encrypted bundle to: \"{}\"", url);
     let mut message = client.post(&url).body(body_content.to_owned()).header(CONTENT_TYPE, "octet_stream");
 
@@ -28,6 +29,11 @@ pub fn post_u8(body_content: &Vec<u8>) -> Result<Vec<u8>,String> {
     println!("{:?}", message);
 
     let mut response = match message.send() {
+=======
+    let client = reqwest::ClientBuilder::new().build().or(Err("Preparing Post failed".to_string()))?;
+    info!("Posting encrypted bundle to: \"{}\"", url);
+    let mut response = match  client.post(&url).body(body_content.to_owned()).header(CONTENT_TYPE, "octet_stream").send() {
+>>>>>>> Stashed changes
         Ok(result) => {
             println!("got the result");
             result
